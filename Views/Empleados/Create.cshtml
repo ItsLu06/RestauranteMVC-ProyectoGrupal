@@ -1,0 +1,26 @@
+@model RestauranteMVC.Models.Empleado
+@{
+    ViewData["Title"] = "Nuevo empleado";
+}
+
+<a asp-action="Index" class="crumb">@Html.Icono("back") Empleados</a>
+<div class="page-head">
+    <div><h1>Nuevo empleado</h1></div>
+</div>
+
+<div class="card-x form-card">
+    <div class="card-pad">
+        <form asp-action="Create">
+            
+            <partial name="_Form" model="Model" />
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Guardar</button>
+                <a asp-action="Index" class="btn btn-light">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

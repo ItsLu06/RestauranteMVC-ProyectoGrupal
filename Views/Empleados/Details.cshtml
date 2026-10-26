@@ -1,0 +1,24 @@
+@model RestauranteMVC.Models.Empleado
+@{
+    ViewData["Title"] = "Empleados";
+}
+
+<a asp-action="Index" class="crumb">@Html.Icono("back") Empleados</a>
+<div class="page-head">
+    <div><h1>@Model.NombreCompleto</h1></div>
+    <div class="page-actions">
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">@Html.Icono("edit") Editar</a>
+        <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger">@Html.Icono("trash") Eliminar</a>
+    </div>
+</div>
+
+<div class="card-x form-card">
+    <div class="card-pad">
+        <dl class="dl">
+            <div><dt>Nombre completo</dt><dd>@Model.NombreCompleto</dd></div>
+            <div><dt>Cargo</dt><dd>@(Model.Cargo?.NombreCargo ?? "—")</dd></div>
+            <div><dt>Teléfono</dt><dd>@(string.IsNullOrWhiteSpace(Model.Telefono) ? "—" : Model.Telefono)</dd></div>
+            <div><dt>Pedidos atendidos</dt><dd>@ViewBag.TotalPedidos</dd></div>
+        </dl>
+    </div>
+</div>

@@ -1,0 +1,56 @@
+@model RestauranteMVC.Models.Pedido
+@{
+    ViewData["Title"] = "Nuevo pedido";
+    var mesas = (List<SelectListItem>)ViewBag.Mesas;
+    var empleados = (List<SelectListItem>)ViewBag.Empleados;
+}
+
+<a asp-action="Index" class="crumb">@Html.Icono("back") Pedidos</a>
+<div class="page-head">
+    <div>
+        <h1>Nuevo pedido</h1>
+        <p>Elige la mesa y quién atiende. Los platos se agregan en el siguiente paso.</p>
+    </div>
+</div>
+
+<div class="card-x form-card">
+    <div class="card-pad">
+        @if (mesas.Count == 0)
+        {
+            <div class="flash warn">@Html.Icono("alert") <span>No hay mesas libres. Cierra un pedido o <a asp-controller="Mesas" asp-action="Create">crea una mesa</a>.</span></div>
+        }
+        @if (empleados.Count == 0)
+        {
+            <div class="flash warn">@Html.Icono("alert") <span>Aún no hay empleados. <a asp-controller="Empleados" asp-action="Create">Registra uno</a> para poder asignar el pedido.</span></div>
+        }
+
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly"></div>
+
+            <div class="mb-3">
+                <label asp-for="MesaId" class="form-label"></label>
+                <select asp-for="MesaId" asp-items="mesas" class="form-select">
+                    <option value="">Selecciona una mesa…</option>
+                </select>
+                <span asp-validation-for="MesaId" class="field-validation-error"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="EmpleadoId" class="form-label"></label>
+                <select asp-for="EmpleadoId" asp-items="empleados" class="form-select">
+                    <option value="">Selecciona un empleado…</option>
+                </select>
+                <span asp-validation-for="EmpleadoId" class="field-validation-error"></span>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Abrir pedido</button>
+                <a asp-action="Index" class="btn btn-light">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

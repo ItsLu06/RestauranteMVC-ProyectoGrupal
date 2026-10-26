@@ -1,0 +1,19 @@
+@model RestauranteMVC.Models.Mesa
+
+<div asp-validation-summary="ModelOnly"></div>
+    <div class="mb-3">
+        <label asp-for="NumeroMesa" class="form-label"></label>
+        <input asp-for="NumeroMesa" type="number" min="1" max="999" class="form-control" value="@(Model.NumeroMesa > 0 ? Model.NumeroMesa.ToString() : "")" autofocus />
+        <span asp-validation-for="NumeroMesa" class="field-validation-error"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Capacidad" class="form-label"></label>
+        <input asp-for="Capacidad" type="number" min="1" max="50" class="form-control" value="@(Model.Capacidad > 0 ? Model.Capacidad.ToString() : "")" />
+        <span asp-validation-for="Capacidad" class="field-validation-error"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Estado" class="form-label"></label>
+        <select asp-for="Estado" asp-items="ViewBag.Estados" class="form-select"></select>
+        <div class="form-text">El estado cambia solo al abrir y cerrar pedidos; aquí puedes marcar una mesa como reservada.</div>
+        <span asp-validation-for="Estado" class="field-validation-error"></span>
+    </div>

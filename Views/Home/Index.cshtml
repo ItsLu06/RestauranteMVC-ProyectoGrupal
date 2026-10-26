@@ -1,0 +1,116 @@
+@model DashboardViewModel
+@{
+    ViewData["Title"] = "Tablero";
+}
+
+<div class="page-head">
+    <div>
+        <h1>Tablero</h1>
+        <p>@Formato.FechaLarga(DateTime.Now) · resumen de hoy</p>
+    </div>
+    <div class="page-actions">
+        <a asp-controller="Pedidos" asp-action="Create" class="btn btn-primary">@Html.Icono("plus") Nuevo pedido</a>
+    </div>
+</div>
+
+<div class="kpis">
+    <div class="card-x kpi">
+        <span class="kpi-ic k1">@Html.Icono("grid")</span>
+        <div><div class="kpi-val">@Model.MesasLibres<span class="text-secondary fw-normal fs-6"> / @Model.MesasTotal</span></div><div class="kpi-lbl">Mesas libres</div></div>
+    </div>
+    <div class="card-x kpi">
+        <span class="kpi-ic k2">@Html.Icono("clipboard")</span>
+        <div><div class="kpi-val">@Model.PedidosActivos</div><div class="kpi-lbl">Pedidos en curso</div></div>
+    </div>
+    <div class="card-x kpi">
+        <span class="kpi-ic k3">@Html.Icono("dollar")</span>
+        <div><div class="kpi-val">@Formato.Bs(Model.VentasHoy)</div><div class="kpi-lbl">Cobrado hoy (@Model.PedidosHoy pedidos)</div></div>
+    </div>
+    <div class="card-x kpi">
+        <span class="kpi-ic k4">@Html.Icono("book")</span>
+        <div><div class="kpi-val">@Model.PlatosDisponibles</div><div class="kpi-lbl">Platos disponibles</div></div>
+    </div>
+</div>
+
+<div class="section-title">
+    <h2>Mesas</h2>
+    <a asp-controller="Mesas" asp-action="Index" class="small">Administrar mesas</a>
+</div>
+
+@if (Model.Mesas.Count == 0)
+{
+    <div class="card-x empty">
+        @Html.Icono("grid")
+        <h3>Aún no hay mesas registradas</h3>
+        <p>Crea tus mesas para empezar a tomar pedidos.</p>
+        <a asp-controller="Mesas" asp-action="Create" class="btn btn-primary">@Html.Icono("plus") Crear mesa</a>
+    </div>
+}
+else
+{
+    <div class="mesas-grid">
+        @foreach (var item in Model.Mesas)
+        {
+            var m = item.Mesa;
+            <div class="mesa mesa--@m.Estado.ToLowerInvariant()">
+                <div class="d-flex justify-content-between align-items-start">
+                    <span class="mesa-num">Mesa @m.NumeroMesa</span>
+                    <span class="badge-x @Formato.ClaseEstadoMesa(m.Estado)">@m.Estado</span>
+                </div>
+                <span class="mesa-meta">@m.Capacidad personas</span>
+
+                @if (item.PedidoAbierto != null)
+                {
+                    <span class="mesa-total">@Formato.Bs(item.PedidoAbierto.Total)</span>
+                    <span class="mesa-meta">@(item.PedidoAbierto.Estado) · desde @item.PedidoAbierto.FechaHora.ToString("HH:mm")</span>
+                    <a asp-controller="Pedidos" asp-action="Details" asp-route-id="@item.PedidoAbierto.Id" class="btn btn-light btn-sm">@Html.Icono("eye") Ver pedido</a>
+                }
+                else if (m.Estado == EstadosMesa.Libre)
+                {
+                    <a asp-controller="Pedidos" asp-action="Create" asp-route-mesaId="@m.Id" class="btn btn-primary btn-sm">@Html.Icono("plus") Abrir pedido</a>
+                }
+                else
+                {
+                    <a asp-controller="Mesas" asp-action="Edit" asp-route-id="@m.Id" class="btn btn-light btn-sm">@Html.Icono("edit") Cambiar estado</a>
+                }
+            </div>
+        }
+    </div>
+}
+
+<div class="section-title">
+    <h2>Pedidos en curso</h2>
+    <a asp-controller="Pedidos" asp-action="Index" class="small">Ver todos</a>
+</div>
+
+<div class="card-x">
+    @if (Model.PedidosRecientes.Count == 0)
+    {
+        <div class="empty">
+            @Html.Icono("clipboard")
+            <h3>No hay pedidos en curso</h3>
+            <p>Abre un pedido desde una mesa libre.</p>
+        </div>
+    }
+    else
+    {
+        <div class="tbl-wrap">
+            <table class="tbl tbl-stack">
+                <thead><tr><th>Hora</th><th>Mesa</th><th>Atiende</th><th>Estado</th><th class="num">Total</th><th></th></tr></thead>
+                <tbody>
+                @foreach (var p in Model.PedidosRecientes)
+                {
+                    <tr>
+                        <td data-label="Hora">@p.FechaHora.ToString("HH:mm")</td>
+                        <td data-label="Mesa" class="cell-title">Mesa @p.Mesa?.NumeroMesa</td>
+                        <td data-label="Atiende">@p.Empleado?.NombreCompleto</td>
+                        <td data-label="Estado"><span class="badge-x @Formato.ClaseEstadoPedido(p.Estado)">@p.Estado</span></td>
+                        <td data-label="Total" class="num">@Formato.Bs(p.Total)</td>
+                        <td class="actions"><a asp-controller="Pedidos" asp-action="Details" asp-route-id="@p.Id" class="btn btn-light btn-sm">Abrir</a></td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

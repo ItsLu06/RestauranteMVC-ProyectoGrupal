@@ -1,0 +1,42 @@
+@model RestauranteMVC.Models.Pedido
+@{
+    ViewData["Title"] = $"Eliminar pedido #{Model.Id}";
+    var bloqueo = ViewBag.Bloqueo as string;
+}
+
+<a asp-action="Details" asp-route-id="@Model.Id" class="crumb">@Html.Icono("back") Pedido #@Model.Id</a>
+<div class="page-head">
+    <div><h1>Eliminar pedido #@Model.Id</h1></div>
+</div>
+
+<div class="card-x form-card">
+    <div class="card-pad">
+        @if (bloqueo != null)
+        {
+            <div class="flash warn">@Html.Icono("alert") <span>@bloqueo</span></div>
+        }
+        else
+        {
+            <p class="mb-3">Se eliminará el pedido junto con sus platos. <strong>Esta acción no se puede deshacer.</strong> Si solo quieres anularlo, mejor usa «Cancelar pedido».</p>
+        }
+
+        <dl class="dl">
+            <div><dt>Mesa</dt><dd>@(Model.Mesa != null ? $"Mesa {Model.Mesa.NumeroMesa}" : "—")</dd></div>
+            <div><dt>Fecha</dt><dd>@Formato.FechaHora(Model.FechaHora)</dd></div>
+            <div><dt>Estado</dt><dd><span class="badge-x @Formato.ClaseEstadoPedido(Model.Estado)">@Model.Estado</span></dd></div>
+            <div><dt>Platos</dt><dd>@Model.Detalles.Sum(d => d.Cantidad)</dd></div>
+            <div><dt>Total</dt><dd>@Formato.Bs(Model.Total)</dd></div>
+        </dl>
+
+        <form asp-action="Delete" asp-route-id="@Model.Id" method="post">
+            <input type="hidden" asp-for="Id" />
+            <div class="form-actions">
+                @if (bloqueo == null)
+                {
+                    <button type="submit" class="btn btn-danger">@Html.Icono("trash") Sí, eliminar</button>
+                }
+                <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-light">@(bloqueo == null ? "Cancelar" : "Volver")</a>
+            </div>
+        </form>
+    </div>
+</div>

@@ -1,0 +1,50 @@
+@model IEnumerable<RestauranteMVC.Models.Categoria>
+@{
+    ViewData["Title"] = "Categorías";
+}
+
+<div class="page-head">
+    <div>
+        <h1>Categorías</h1>
+        <p>Agrupa los platos del menú.</p>
+    </div>
+    <div class="page-actions">
+        <a asp-action="Create" class="btn btn-primary">@Html.Icono("plus") Nueva categoría</a>
+    </div>
+</div>
+
+<div class="card-x">
+    @if (!Model.Any())
+    {
+        <div class="empty">
+            @Html.Icono("tag")
+            <h3>Aún no hay categorías</h3>
+            <p>Crea categorías como Entradas, Principales o Bebidas.</p>
+            <a asp-action="Create" class="btn btn-primary">@Html.Icono("plus") Nueva categoría</a>
+        </div>
+    }
+    else
+    {
+        <div class="tbl-wrap">
+            <table class="tbl tbl-stack">
+                <thead>
+                    <tr><th>Categoría</th><th>Platos</th><th class="actions"></th></tr>
+                </thead>
+                <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td data-label="Categoría"><span class="cell-title">@item.Nombre</span>@if (!string.IsNullOrWhiteSpace(item.Descripcion)) {<span class="cell-sub">@item.Descripcion</span>}</td>
+                        <td data-label="Platos">@item.Platos.Count</td>
+                        <td class="actions"><div class="row-actions">
+                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-light btn-icon" title="Ver" aria-label="Ver">@Html.Icono("eye")</a>
+                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-light btn-icon" title="Editar" aria-label="Editar">@Html.Icono("edit")</a>
+                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger btn-icon" title="Eliminar" aria-label="Eliminar">@Html.Icono("trash")</a>
+                        </div></td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

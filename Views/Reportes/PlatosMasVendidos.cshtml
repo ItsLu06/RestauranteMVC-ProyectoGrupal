@@ -1,0 +1,64 @@
+@model ReportePlatosViewModel
+@{
+    ViewData["Title"] = "Platos más vendidos";
+    var maxCant = Model.Platos.Count == 0 ? 0 : Model.Platos.Max(p => p.Cantidad);
+    var rank = 0;
+}
+
+<div class="page-head">
+    <div>
+        <h1>Platos más vendidos</h1>
+        <p>Ranking por unidades vendidas. No incluye pedidos cancelados. Sin fechas, cuenta todo el historial.</p>
+    </div>
+</div>
+
+<div class="card-x mb-4">
+    <form method="get" class="filter-bar">
+        <div>
+            <label class="form-label" for="fechaInicio">Desde</label>
+            <input id="fechaInicio" type="date" name="fechaInicio" class="form-control" value="@Model.Inicio?.ToString("yyyy-MM-dd")" />
+        </div>
+        <div>
+            <label class="form-label" for="fechaFin">Hasta</label>
+            <input id="fechaFin" type="date" name="fechaFin" class="form-control" value="@Model.Fin?.ToString("yyyy-MM-dd")" />
+        </div>
+        <button type="submit" class="btn btn-primary">Filtrar</button>
+        <a asp-action="PlatosMasVendidos" class="btn btn-light">Ver todo</a>
+    </form>
+</div>
+
+<div class="card-x">
+    @if (Model.Platos.Count == 0)
+    {
+        <div class="empty">
+            @Html.Icono("award")
+            <h3>Aún no hay ventas registradas</h3>
+            <p>Cuando agregues platos a los pedidos, el ranking aparecerá aquí.</p>
+            <a asp-controller="Pedidos" asp-action="Create" class="btn btn-primary">@Html.Icono("plus") Nuevo pedido</a>
+        </div>
+    }
+    else
+    {
+        <div class="tbl-wrap">
+            <table class="tbl tbl-stack">
+                <thead>
+                    <tr><th>#</th><th>Plato</th><th>Popularidad</th><th class="num">Unidades</th><th class="num">Total generado</th></tr>
+                </thead>
+                <tbody>
+                @foreach (var item in Model.Platos)
+                {
+                    rank++;
+                    var pct = maxCant > 0 ? Math.Max(3, (int)Math.Round(item.Cantidad * 100.0 / maxCant)) : 0;
+                    <tr>
+                        <td data-label="#"><span class="rank @(rank == 1 ? "r1" : "")">@rank</span></td>
+                        <td data-label="Plato" class="cell-title">@item.Plato</td>
+                        <td data-label="Popularidad" style="min-width:9rem"><span class="bar-track d-block"><span class="bar-fill" style="width:@(pct)%"></span></span></td>
+                        <td data-label="Unidades" class="num fw-semibold">@item.Cantidad</td>
+                        <td data-label="Total generado" class="num">@Formato.Bs(item.Total)</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

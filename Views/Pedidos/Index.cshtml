@@ -1,0 +1,68 @@
+@model IEnumerable<RestauranteMVC.Models.Pedido>
+@{
+    ViewData["Title"] = "Pedidos";
+    var filtro = (ViewBag.Filtro as string) ?? "activos";
+    var opciones = new List<(string Valor, string Texto)>
+    {
+        ("activos", "En curso"),
+        (EstadosPedido.Pagado, "Pagados"),
+        (EstadosPedido.Cancelado, "Cancelados"),
+        ("todos", "Todos")
+    };
+}
+
+<div class="page-head">
+    <div>
+        <h1>Pedidos</h1>
+        <p>Abre un pedido por mesa, agrega los platos y cóbralo al final.</p>
+    </div>
+    <div class="page-actions">
+        <a asp-action="Create" class="btn btn-primary">@Html.Icono("plus") Nuevo pedido</a>
+    </div>
+</div>
+
+<div class="card-x">
+    <div class="filter-bar">
+        @foreach (var o in opciones)
+        {
+            <a asp-action="Index" asp-route-filtro="@o.Valor" class="btn btn-sm @(filtro == o.Valor ? "btn-primary" : "btn-light")">@o.Texto</a>
+        }
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="empty">
+            @Html.Icono("clipboard")
+            <h3>No hay pedidos en esta vista</h3>
+            <p>Cuando abras un pedido aparecerá aquí.</p>
+            <a asp-action="Create" class="btn btn-primary">@Html.Icono("plus") Nuevo pedido</a>
+        </div>
+    }
+    else
+    {
+        <div class="tbl-wrap">
+            <table class="tbl tbl-stack">
+                <thead>
+                    <tr><th>#</th><th>Fecha</th><th>Mesa</th><th>Atiende</th><th>Estado</th><th class="num">Total</th><th class="actions"></th></tr>
+                </thead>
+                <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td data-label="#">@item.Id</td>
+                        <td data-label="Fecha">@Formato.FechaHora(item.FechaHora)</td>
+                        <td data-label="Mesa" class="cell-title">@(item.Mesa != null ? $"Mesa {item.Mesa.NumeroMesa}" : "—")</td>
+                        <td data-label="Atiende">@(item.Empleado?.NombreCompleto ?? "—")</td>
+                        <td data-label="Estado"><span class="badge-x @Formato.ClaseEstadoPedido(item.Estado)">@item.Estado</span></td>
+                        <td data-label="Total" class="num">@Formato.Bs(item.Total)</td>
+                        <td class="actions"><div class="row-actions">
+                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-light btn-sm">Abrir</a>
+                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger btn-icon" title="Eliminar" aria-label="Eliminar">@Html.Icono("trash")</a>
+                        </div></td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

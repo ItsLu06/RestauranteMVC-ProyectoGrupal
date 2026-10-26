@@ -1,0 +1,183 @@
+@model RestauranteMVC.Models.Pedido
+@{
+    ViewData["Title"] = $"Pedido #{Model.Id}";
+    var activo = EstadosPedido.EsActivo(Model.Estado);
+    var platos = (List<SelectListItem>)ViewBag.Platos;
+    var lineas = Model.Detalles.OrderBy(d => d.Id).ToList();
+}
+
+<a asp-action="Index" class="crumb">@Html.Icono("back") Pedidos</a>
+<div class="page-head">
+    <div>
+        <h1>Mesa @Model.Mesa?.NumeroMesa <span class="badge-x @Formato.ClaseEstadoPedido(Model.Estado) align-middle ms-1">@Model.Estado</span></h1>
+        <p>Pedido #@Model.Id · @Formato.FechaHora(Model.FechaHora) · atiende @(Model.Empleado?.NombreCompleto ?? "—")</p>
+    </div>
+    <div class="page-actions">
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-light">@Html.Icono("edit") Editar</a>
+        @if (Model.Estado != EstadosPedido.Pagado)
+        {
+            <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger">@Html.Icono("trash") Eliminar</a>
+        }
+    </div>
+</div>
+
+<div class="split">
+    <div>
+        <div class="card-x">
+            <div class="card-head">
+                <h2>Platos del pedido</h2>
+                <span class="text-secondary small">@lineas.Sum(d => d.Cantidad) unidad(es)</span>
+            </div>
+
+            @if (lineas.Count == 0)
+            {
+                <div class="empty">
+                    @Html.Icono("book")
+                    <h3>Todavía no hay platos</h3>
+                    <p>@(activo ? "Agrega el primer plato desde el formulario de abajo." : "Este pedido se cerró sin platos.")</p>
+                </div>
+            }
+            else
+            {
+                <div class="tbl-wrap">
+                    <table class="tbl tbl-stack">
+                        <thead>
+                            <tr><th>Plato</th><th class="num">Precio</th><th>Cantidad</th><th class="num">Subtotal</th><th class="actions"></th></tr>
+                        </thead>
+                        <tbody>
+                        @foreach (var d in lineas)
+                        {
+                            <tr>
+                                <td data-label="Plato" class="cell-title">@d.Plato?.Nombre<span class="cell-sub">@d.Plato?.Categoria?.Nombre</span></td>
+                                <td data-label="Precio" class="num">@Formato.Bs(d.Plato?.Precio ?? 0)</td>
+                                <td data-label="Cantidad">
+                                    @if (activo)
+                                    {
+                                        <div class="qty">
+                                            <form asp-action="CambiarCantidad" method="post">
+                                                <input type="hidden" name="detalleId" value="@d.Id" />
+                                                <input type="hidden" name="delta" value="-1" />
+                                                <button type="submit" class="btn btn-light btn-icon" aria-label="Quitar uno" disabled="@(d.Cantidad <= 1)">@Html.Icono("minus")</button>
+                                            </form>
+                                            <span class="q">@d.Cantidad</span>
+                                            <form asp-action="CambiarCantidad" method="post">
+                                                <input type="hidden" name="detalleId" value="@d.Id" />
+                                                <input type="hidden" name="delta" value="1" />
+                                                <button type="submit" class="btn btn-light btn-icon" aria-label="Agregar uno" disabled="@(d.Cantidad >= 99)">@Html.Icono("plus")</button>
+                                            </form>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <span class="fw-semibold">@d.Cantidad</span>
+                                    }
+                                </td>
+                                <td data-label="Subtotal" class="num fw-semibold">@Formato.Bs(d.Subtotal)</td>
+                                <td class="actions">
+                                    @if (activo)
+                                    {
+                                        <form asp-action="QuitarDetalle" method="post" class="d-inline">
+                                            <input type="hidden" name="detalleId" value="@d.Id" />
+                                            <button type="submit" class="btn btn-outline-danger btn-icon" title="Quitar plato" aria-label="Quitar plato">@Html.Icono("trash")</button>
+                                        </form>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            }
+
+            <div class="total-box">
+                <span class="text-secondary fw-semibold">Total</span>
+                <strong>@Formato.Bs(Model.Total)</strong>
+            </div>
+        </div>
+
+        @if (activo)
+        {
+            <div class="card-x mt-3">
+                <div class="card-head"><h2>Agregar plato</h2></div>
+                @if (platos.Count == 0)
+                {
+                    <div class="card-pad text-secondary">No hay platos disponibles. <a asp-controller="Platos" asp-action="Index">Revisa el menú</a>.</div>
+                }
+                else
+                {
+                    <form asp-action="AgregarDetalle" method="post" class="add-line">
+                        <input type="hidden" name="pedidoId" value="@Model.Id" />
+                        <div>
+                            <label class="form-label" for="platoId">Plato</label>
+                            <select id="platoId" name="platoId" class="form-select" required>
+                                <option value="">Selecciona un plato…</option>
+                                @foreach (var grupo in platos.GroupBy(p => p.Group?.Name ?? "Otros"))
+                                {
+                                    <optgroup label="@grupo.Key">
+                                        @foreach (var p in grupo)
+                                        {
+                                            <option value="@p.Value">@p.Text</option>
+                                        }
+                                    </optgroup>
+                                }
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label" for="cantidad">Cant.</label>
+                            <input id="cantidad" name="cantidad" type="number" min="1" max="99" value="1" class="form-control" required />
+                        </div>
+                        <button type="submit" class="btn btn-primary">@Html.Icono("plus") Agregar</button>
+                    </form>
+                }
+            </div>
+        }
+    </div>
+
+    <aside class="summary">
+        <div class="card-x">
+            <div class="card-head"><h2>Resumen</h2></div>
+            <div class="card-pad">
+                <dl class="dl">
+                    <div><dt>Mesa</dt><dd>Mesa @Model.Mesa?.NumeroMesa · @Model.Mesa?.Capacidad personas</dd></div>
+                    <div><dt>Atiende</dt><dd>@(Model.Empleado?.NombreCompleto ?? "—")</dd></div>
+                    <div><dt>Abierto</dt><dd>@Formato.FechaHora(Model.FechaHora)</dd></div>
+                    <div><dt>Estado</dt><dd><span class="badge-x @Formato.ClaseEstadoPedido(Model.Estado)">@Model.Estado</span></dd></div>
+                </dl>
+            </div>
+
+            @if (activo)
+            {
+                <div class="state-actions">
+                    @if (Model.Estado == EstadosPedido.EnPreparacion)
+                    {
+                        <form asp-action="CambiarEstado" method="post">
+                            <input type="hidden" name="id" value="@Model.Id" />
+                            <input type="hidden" name="estado" value="@EstadosPedido.Servido" />
+                            <button type="submit" class="btn btn-light" disabled="@(lineas.Count == 0)">@Html.Icono("check") Marcar como servido</button>
+                        </form>
+                    }
+                    <form asp-action="CambiarEstado" method="post" data-confirm="@($"¿Cobrar {Formato.Bs(Model.Total)} y liberar la mesa?")">
+                        <input type="hidden" name="id" value="@Model.Id" />
+                        <input type="hidden" name="estado" value="@EstadosPedido.Pagado" />
+                        <button type="submit" class="btn btn-success" disabled="@(lineas.Count == 0)">@Html.Icono("dollar") Cobrar y cerrar</button>
+                    </form>
+                    <form asp-action="CambiarEstado" method="post" data-confirm="¿Cancelar este pedido? La mesa quedará libre.">
+                        <input type="hidden" name="id" value="@Model.Id" />
+                        <input type="hidden" name="estado" value="@EstadosPedido.Cancelado" />
+                        <button type="submit" class="btn btn-outline-danger">@Html.Icono("x") Cancelar pedido</button>
+                    </form>
+                </div>
+            }
+            else
+            {
+                <div class="state-actions">
+                    <div class="flash @(Model.Estado == EstadosPedido.Pagado ? "ok" : "warn") mb-0">
+                        @Html.Icono(Model.Estado == EstadosPedido.Pagado ? "check" : "alert")
+                        <span>@(Model.Estado == EstadosPedido.Pagado ? "Pedido cobrado y cerrado." : "Pedido cancelado.")</span>
+                    </div>
+                    <a asp-action="Create" asp-route-mesaId="@Model.MesaId" class="btn btn-primary">@Html.Icono("plus") Nuevo pedido en esta mesa</a>
+                </div>
+            }
+        </div>
+    </aside>
+</div>

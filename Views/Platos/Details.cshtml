@@ -1,0 +1,24 @@
+@model RestauranteMVC.Models.Plato
+@{
+    ViewData["Title"] = "Platos";
+}
+
+<a asp-action="Index" class="crumb">@Html.Icono("back") Platos</a>
+<div class="page-head">
+    <div><h1>@Model.Nombre</h1></div>
+    <div class="page-actions">
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">@Html.Icono("edit") Editar</a>
+        <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger">@Html.Icono("trash") Eliminar</a>
+    </div>
+</div>
+
+<div class="card-x form-card">
+    <div class="card-pad">
+        <dl class="dl">
+            <div><dt>Nombre</dt><dd>@Model.Nombre</dd></div>
+            <div><dt>Categoría</dt><dd>@(Model.Categoria?.Nombre ?? "—")</dd></div>
+            <div><dt>Precio</dt><dd>@Formato.Bs(Model.Precio)</dd></div>
+            <div><dt>Disponible</dt><dd><span class="badge-x @(Model.Disponible ? "b-green" : "b-gray")">@(Model.Disponible ? "Disponible" : "Agotado")</span></dd></div>
+        </dl>
+    </div>
+</div>

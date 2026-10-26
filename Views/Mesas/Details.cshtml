@@ -1,0 +1,24 @@
+@model RestauranteMVC.Models.Mesa
+@{
+    ViewData["Title"] = "Mesas";
+}
+
+<a asp-action="Index" class="crumb">@Html.Icono("back") Mesas</a>
+<div class="page-head">
+    <div><h1>Mesa @Model.NumeroMesa</h1></div>
+    <div class="page-actions">
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">@Html.Icono("edit") Editar</a>
+        <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger">@Html.Icono("trash") Eliminar</a>
+    </div>
+</div>
+
+<div class="card-x form-card">
+    <div class="card-pad">
+        <dl class="dl">
+            <div><dt>Número</dt><dd>@Model.NumeroMesa</dd></div>
+            <div><dt>Capacidad</dt><dd>@Model.Capacidad personas</dd></div>
+            <div><dt>Estado</dt><dd><span class="badge-x @Formato.ClaseEstadoMesa(Model.Estado)">@Model.Estado</span></dd></div>
+            <div><dt>Pedido abierto</dt><dd>@if (ViewBag.PedidoAbierto is Pedido abierto) { <a asp-controller="Pedidos" asp-action="Details" asp-route-id="@abierto.Id">Ver pedido (@Formato.Bs(abierto.Total))</a> } else { <span class="text-secondary">Ninguno</span> }</dd></div>
+        </dl>
+    </div>
+</div>

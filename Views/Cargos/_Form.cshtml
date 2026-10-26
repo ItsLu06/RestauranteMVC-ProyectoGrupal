@@ -1,0 +1,8 @@
+@model RestauranteMVC.Models.Cargo
+
+<div asp-validation-summary="ModelOnly"></div>
+    <div class="mb-3">
+        <label asp-for="NombreCargo" class="form-label"></label>
+        <input asp-for="NombreCargo" class="form-control" autofocus placeholder="Ej. Mesero" />
+        <span asp-validation-for="NombreCargo" class="field-validation-error"></span>
+    </div>

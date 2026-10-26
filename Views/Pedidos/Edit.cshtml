@@ -1,0 +1,48 @@
+@model RestauranteMVC.Models.Pedido
+@{
+    ViewData["Title"] = $"Editar pedido #{Model.Id}";
+    var empleados = (List<SelectListItem>)ViewBag.Empleados;
+    var estados = (SelectList)ViewBag.Estados;
+}
+
+<a asp-action="Details" asp-route-id="@Model.Id" class="crumb">@Html.Icono("back") Pedido #@Model.Id</a>
+<div class="page-head">
+    <div>
+        <h1>Editar pedido #@Model.Id</h1>
+        <p>Mesa @Model.Mesa?.NumeroMesa · @Formato.FechaHora(Model.FechaHora) · Total @Formato.Bs(Model.Total)</p>
+    </div>
+</div>
+
+<div class="card-x form-card">
+    <div class="card-pad">
+        <form asp-action="Edit" asp-route-id="@Model.Id" method="post">
+            <div class="mb-3">
+                <label class="form-label" for="empleadoId">Atiende</label>
+                <select id="empleadoId" name="empleadoId" class="form-select">
+                    @foreach (var o in empleados)
+                    {
+                        <option value="@o.Value" selected="@o.Selected">@o.Text</option>
+                    }
+                </select>
+                @Html.ValidationMessage("empleadoId", new { @class = "field-validation-error" })
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label" for="estado">Estado</label>
+                <select id="estado" name="estado" class="form-select">
+                    @foreach (var o in estados)
+                    {
+                        <option value="@o.Value" selected="@o.Selected">@o.Text</option>
+                    }
+                </select>
+                <div class="form-text">La mesa se libera sola cuando el pedido pasa a «Pagado» o «Cancelado».</div>
+                @Html.ValidationMessage("estado", new { @class = "field-validation-error" })
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Guardar cambios</button>
+                <a asp-action="Details" asp-route-id="@Model.Id" class="btn btn-light">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>

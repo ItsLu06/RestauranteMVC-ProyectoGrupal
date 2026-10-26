@@ -1,0 +1,51 @@
+@model IEnumerable<RestauranteMVC.Models.Empleado>
+@{
+    ViewData["Title"] = "Empleados";
+}
+
+<div class="page-head">
+    <div>
+        <h1>Empleados</h1>
+        <p>Personal que atiende en el restaurante.</p>
+    </div>
+    <div class="page-actions">
+        <a asp-action="Create" class="btn btn-primary">@Html.Icono("plus") Nuevo empleado</a>
+    </div>
+</div>
+
+<div class="card-x">
+    @if (!Model.Any())
+    {
+        <div class="empty">
+            @Html.Icono("users")
+            <h3>Aún no hay empleados</h3>
+            <p>Registra a tu equipo para poder asignarlo a los pedidos.</p>
+            <a asp-action="Create" class="btn btn-primary">@Html.Icono("plus") Nuevo empleado</a>
+        </div>
+    }
+    else
+    {
+        <div class="tbl-wrap">
+            <table class="tbl tbl-stack">
+                <thead>
+                    <tr><th>Empleado</th><th>Cargo</th><th>Teléfono</th><th class="actions"></th></tr>
+                </thead>
+                <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td data-label="Empleado" class="cell-title">@item.NombreCompleto</td>
+                        <td data-label="Cargo">@(item.Cargo?.NombreCargo ?? "—")</td>
+                        <td data-label="Teléfono">@(string.IsNullOrWhiteSpace(item.Telefono) ? "—" : item.Telefono)</td>
+                        <td class="actions"><div class="row-actions">
+                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-light btn-icon" title="Ver" aria-label="Ver">@Html.Icono("eye")</a>
+                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-light btn-icon" title="Editar" aria-label="Editar">@Html.Icono("edit")</a>
+                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger btn-icon" title="Eliminar" aria-label="Eliminar">@Html.Icono("trash")</a>
+                        </div></td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

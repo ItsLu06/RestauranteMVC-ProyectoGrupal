@@ -1,0 +1,22 @@
+@model RestauranteMVC.Models.Cargo
+@{
+    ViewData["Title"] = "Cargos";
+}
+
+<a asp-action="Index" class="crumb">@Html.Icono("back") Cargos</a>
+<div class="page-head">
+    <div><h1>@Model.NombreCargo</h1></div>
+    <div class="page-actions">
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">@Html.Icono("edit") Editar</a>
+        <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger">@Html.Icono("trash") Eliminar</a>
+    </div>
+</div>
+
+<div class="card-x form-card">
+    <div class="card-pad">
+        <dl class="dl">
+            <div><dt>Cargo</dt><dd>@Model.NombreCargo</dd></div>
+            <div><dt>Empleados</dt><dd>@if (Model.Empleados.Count == 0) { <span class="text-secondary">Ninguno</span> } else { @string.Join(", ", Model.Empleados.Select(x => x.NombreCompleto)) }</dd></div>
+        </dl>
+    </div>
+</div>

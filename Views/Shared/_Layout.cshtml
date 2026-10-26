@@ -1,0 +1,83 @@
+@{
+    var ctrl = ViewContext.RouteData.Values["controller"]?.ToString() ?? "";
+    var accion = ViewContext.RouteData.Values["action"]?.ToString() ?? "";
+
+    string Activo(string c) => string.Equals(ctrl, c, StringComparison.OrdinalIgnoreCase) ? "active" : "";
+    string ActivoReporte(string a) => string.Equals(ctrl, "Reportes", StringComparison.OrdinalIgnoreCase)
+        && string.Equals(accion, a, StringComparison.OrdinalIgnoreCase) ? "active" : "";
+}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#1c1917" />
+    <title>@ViewData["Title"] · RestauranteMVC</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Fraunces:wght@600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <partial name="_Iconos" />
+    <div class="scrim"></div>
+
+    <div class="app">
+        <aside class="sidebar" id="sidebar" aria-label="Navegación principal">
+            <a class="brand" asp-controller="Home" asp-action="Index">
+                <span class="brand-mark">@Html.Icono("utensils")</span>
+                <span class="brand-name">Restaurante<span class="brand-sub">Gestión · Beta</span></span>
+            </a>
+
+            <div class="nav-label">Operación</div>
+            <a class="nav-x @(ctrl == "Home" ? "active" : "")" asp-controller="Home" asp-action="Index">@Html.Icono("home") Tablero</a>
+            <a class="nav-x @Activo("Pedidos")" asp-controller="Pedidos" asp-action="Index">@Html.Icono("clipboard") Pedidos</a>
+            <a class="nav-x @Activo("Mesas")" asp-controller="Mesas" asp-action="Index">@Html.Icono("grid") Mesas</a>
+
+            <div class="nav-label">Menú</div>
+            <a class="nav-x @Activo("Platos")" asp-controller="Platos" asp-action="Index">@Html.Icono("book") Platos</a>
+            <a class="nav-x @Activo("Categorias")" asp-controller="Categorias" asp-action="Index">@Html.Icono("tag") Categorías</a>
+
+            <div class="nav-label">Equipo</div>
+            <a class="nav-x @Activo("Empleados")" asp-controller="Empleados" asp-action="Index">@Html.Icono("users") Empleados</a>
+            <a class="nav-x @Activo("Cargos")" asp-controller="Cargos" asp-action="Index">@Html.Icono("briefcase") Cargos</a>
+
+            <div class="nav-label">Reportes</div>
+            <a class="nav-x @ActivoReporte("VentasPorFecha")" asp-controller="Reportes" asp-action="VentasPorFecha">@Html.Icono("dollar") Ventas por fecha</a>
+            <a class="nav-x @ActivoReporte("PlatosMasVendidos")" asp-controller="Reportes" asp-action="PlatosMasVendidos">@Html.Icono("award") Más vendidos</a>
+
+            <div class="side-foot">Programación Web III<br />Versión beta</div>
+        </aside>
+
+        <div class="main">
+            <div class="topbar">
+                <button type="button" class="menu-btn" data-nav-toggle aria-label="Abrir menú" aria-controls="sidebar">@Html.Icono("menu")</button>
+                <span class="t-brand">Restaurante</span>
+            </div>
+
+            <main class="content" role="main">
+                @if (TempData["Ok"] is string ok)
+                {
+                    <div class="flash ok" role="status">@Html.Icono("check") <span>@ok</span>
+                        <button type="button" class="x" data-dismiss-flash aria-label="Cerrar">@Html.Icono("x")</button></div>
+                }
+                @if (TempData["Error"] is string error)
+                {
+                    <div class="flash err" role="alert">@Html.Icono("alert") <span>@error</span>
+                        <button type="button" class="x" data-dismiss-flash aria-label="Cerrar">@Html.Icono("x")</button></div>
+                }
+
+                @RenderBody()
+            </main>
+
+            <div class="foot">&copy; 2026 RestauranteMVC · Proyecto de Programación Web III</div>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

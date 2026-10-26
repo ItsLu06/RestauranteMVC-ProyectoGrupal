@@ -1,0 +1,38 @@
+@model RestauranteMVC.Models.Categoria
+@{
+    ViewData["Title"] = "Eliminar categoría";
+    var bloqueo = ViewBag.Bloqueo as string;
+}
+
+<a asp-action="Index" class="crumb">@Html.Icono("back") Categorías</a>
+<div class="page-head">
+    <div><h1>Eliminar categoría</h1></div>
+</div>
+
+<div class="card-x form-card">
+    <div class="card-pad">
+        @if (bloqueo != null)
+        {
+            <div class="flash warn">@Html.Icono("alert") <span>@bloqueo</span></div>
+        }
+        else
+        {
+            <p class="mb-3">¿Seguro que quieres eliminar este registro? <strong>Esta acción no se puede deshacer.</strong></p>
+        }
+
+        <dl class="dl">
+            <div><dt>Categoría</dt><dd>@Model.Nombre</dd></div>
+        </dl>
+
+        <form asp-action="Delete" asp-route-id="@Model.Id" method="post">
+            <input type="hidden" asp-for="Id" />
+            <div class="form-actions">
+                @if (bloqueo == null)
+                {
+                    <button type="submit" class="btn btn-danger">@Html.Icono("trash") Sí, eliminar</button>
+                }
+                <a asp-action="Index" class="btn btn-light">@(bloqueo == null ? "Cancelar" : "Volver")</a>
+            </div>
+        </form>
+    </div>
+</div>

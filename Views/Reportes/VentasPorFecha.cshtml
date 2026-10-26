@@ -1,0 +1,99 @@
+@model ReporteVentasViewModel
+@{
+    ViewData["Title"] = "Ventas por fecha";
+    var maxDia = Model.PorDia.Count == 0 ? 0m : Model.PorDia.Max(d => d.Total);
+}
+
+<div class="page-head">
+    <div>
+        <h1>Ventas por fecha</h1>
+        <p>Del @Formato.Fecha(Model.Inicio) al @Formato.Fecha(Model.Fin). «Cobrado» cuenta solo pedidos pagados; los cancelados no se incluyen.</p>
+    </div>
+</div>
+
+<div class="card-x mb-4">
+    <form method="get" class="filter-bar">
+        <div>
+            <label class="form-label" for="fechaInicio">Desde</label>
+            <input id="fechaInicio" type="date" name="fechaInicio" class="form-control" value="@Model.Inicio.ToString("yyyy-MM-dd")" />
+        </div>
+        <div>
+            <label class="form-label" for="fechaFin">Hasta</label>
+            <input id="fechaFin" type="date" name="fechaFin" class="form-control" value="@Model.Fin.ToString("yyyy-MM-dd")" />
+        </div>
+        <button type="submit" class="btn btn-primary">Filtrar</button>
+    </form>
+</div>
+
+<div class="kpis">
+    <div class="card-x kpi">
+        <span class="kpi-ic k1">@Html.Icono("dollar")</span>
+        <div><div class="kpi-val">@Formato.Bs(Model.TotalRecaudado)</div><div class="kpi-lbl">Total cobrado</div></div>
+    </div>
+    <div class="card-x kpi">
+        <span class="kpi-ic k2">@Html.Icono("clock")</span>
+        <div><div class="kpi-val">@Formato.Bs(Model.PorCobrar)</div><div class="kpi-lbl">Por cobrar (en curso)</div></div>
+    </div>
+    <div class="card-x kpi">
+        <span class="kpi-ic k3">@Html.Icono("clipboard")</span>
+        <div><div class="kpi-val">@Model.CantidadPedidos</div><div class="kpi-lbl">Pedidos en el período</div></div>
+    </div>
+    <div class="card-x kpi">
+        <span class="kpi-ic k4">@Html.Icono("chart")</span>
+        <div><div class="kpi-val">@Formato.Bs(Model.TicketPromedio)</div><div class="kpi-lbl">Ticket promedio</div></div>
+    </div>
+</div>
+
+@if (Model.PorDia.Count > 0)
+{
+    <div class="card-x mb-4">
+        <div class="card-head"><h2>Cobrado por día</h2></div>
+        <div class="bars">
+            @foreach (var dia in Model.PorDia)
+            {
+                var pct = maxDia > 0 ? Math.Max(2, (int)Math.Round(dia.Total / maxDia * 100)) : 0;
+                <div class="bar-row">
+                    <span class="bar-lbl">@Formato.Fecha(dia.Fecha)</span>
+                    <span class="bar-track"><span class="bar-fill" style="width:@(pct)%"></span></span>
+                    <span class="bar-val">@Formato.Bs(dia.Total)</span>
+                </div>
+            }
+        </div>
+    </div>
+}
+
+<div class="card-x">
+    <div class="card-head"><h2>Detalle de pedidos</h2></div>
+    @if (Model.Pedidos.Count == 0)
+    {
+        <div class="empty">
+            @Html.Icono("dollar")
+            <h3>Sin ventas en este período</h3>
+            <p>Prueba con otro rango de fechas.</p>
+        </div>
+    }
+    else
+    {
+        <div class="tbl-wrap">
+            <table class="tbl tbl-stack">
+                <thead>
+                    <tr><th>#</th><th>Fecha</th><th>Mesa</th><th>Atiende</th><th>Estado</th><th class="num">Total</th><th class="actions"></th></tr>
+                </thead>
+                <tbody>
+                @foreach (var p in Model.Pedidos)
+                {
+                    <tr>
+                        <td data-label="#">@p.Id</td>
+                        <td data-label="Fecha">@Formato.FechaHora(p.FechaHora)</td>
+                        <td data-label="Mesa">Mesa @p.Mesa?.NumeroMesa</td>
+                        <td data-label="Atiende">@p.Empleado?.NombreCompleto</td>
+                        <td data-label="Estado"><span class="badge-x @Formato.ClaseEstadoPedido(p.Estado)">@p.Estado</span></td>
+                        <td data-label="Total" class="num">@Formato.Bs(p.Total)</td>
+                        <td class="actions"><a asp-controller="Pedidos" asp-action="Details" asp-route-id="@p.Id" class="btn btn-light btn-sm">Abrir</a></td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

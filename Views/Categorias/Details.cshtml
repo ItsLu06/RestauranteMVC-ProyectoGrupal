@@ -1,0 +1,23 @@
+@model RestauranteMVC.Models.Categoria
+@{
+    ViewData["Title"] = "Categorías";
+}
+
+<a asp-action="Index" class="crumb">@Html.Icono("back") Categorías</a>
+<div class="page-head">
+    <div><h1>@Model.Nombre</h1></div>
+    <div class="page-actions">
+        <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">@Html.Icono("edit") Editar</a>
+        <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-outline-danger">@Html.Icono("trash") Eliminar</a>
+    </div>
+</div>
+
+<div class="card-x form-card">
+    <div class="card-pad">
+        <dl class="dl">
+            <div><dt>Nombre</dt><dd>@Model.Nombre</dd></div>
+            <div><dt>Descripción</dt><dd>@(string.IsNullOrWhiteSpace(Model.Descripcion) ? "—" : Model.Descripcion)</dd></div>
+            <div><dt>Platos</dt><dd>@if (Model.Platos.Count == 0) { <span class="text-secondary">Ninguno</span> } else { @string.Join(", ", Model.Platos.OrderBy(x => x.Nombre).Select(x => x.Nombre)) }</dd></div>
+        </dl>
+    </div>
+</div>

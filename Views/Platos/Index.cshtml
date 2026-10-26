@@ -1,0 +1,66 @@
+@model IEnumerable<RestauranteMVC.Models.Plato>
+@{
+    ViewData["Title"] = "Platos";
+    var categorias = (IEnumerable<Categoria>)ViewBag.Categorias;
+    int? categoriaId = ViewBag.CategoriaId;
+}
+
+<div class="page-head">
+    <div>
+        <h1>Platos</h1>
+        <p>El menú del restaurante. Marca como «Agotado» lo que no se pueda servir hoy.</p>
+    </div>
+    <div class="page-actions">
+        <a asp-action="Create" class="btn btn-primary">@Html.Icono("plus") Nuevo plato</a>
+    </div>
+</div>
+
+<div class="card-x">
+    <div class="filter-bar">
+        <a asp-action="Index" class="btn btn-sm @(categoriaId == null ? "btn-primary" : "btn-light")">Todos</a>
+        @foreach (var c in categorias)
+        {
+            <a asp-action="Index" asp-route-categoriaId="@c.Id" class="btn btn-sm @(categoriaId == c.Id ? "btn-primary" : "btn-light")">@c.Nombre</a>
+        }
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="empty">
+            @Html.Icono("book")
+            <h3>No hay platos para mostrar</h3>
+            <p>Agrega platos al menú para poder tomarlos en los pedidos.</p>
+            <a asp-action="Create" class="btn btn-primary">@Html.Icono("plus") Nuevo plato</a>
+        </div>
+    }
+    else
+    {
+        <div class="tbl-wrap">
+            <table class="tbl tbl-stack">
+                <thead>
+                    <tr><th>Plato</th><th>Categoría</th><th class="num">Precio</th><th>Disponibilidad</th><th class="actions"></th></tr>
+                </thead>
+                <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td data-label="Plato" class="cell-title">@item.Nombre</td>
+                        <td data-label="Categoría">@(item.Categoria?.Nombre ?? "—")</td>
+                        <td data-label="Precio" class="num">@Formato.Bs(item.Precio)</td>
+                        <td data-label="Disponibilidad">
+                            <form asp-action="CambiarDisponibilidad" asp-route-id="@item.Id" method="post" class="d-inline">
+                                <button type="submit" class="badge-x @(item.Disponible ? "b-green" : "b-gray")" title="Clic para cambiar">@(item.Disponible ? "Disponible" : "Agotado")</button>
+                            </form>
+                        </td>
+                        <td class="actions"><div class="row-actions">
+                            <a asp-action="Details" asp-route-id="@item.Id" class="btn btn-light btn-icon" title="Ver" aria-label="Ver">@Html.Icono("eye")</a>
+                            <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-light btn-icon" title="Editar" aria-label="Editar">@Html.Icono("edit")</a>
+                            <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger btn-icon" title="Eliminar" aria-label="Eliminar">@Html.Icono("trash")</a>
+                        </div></td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
